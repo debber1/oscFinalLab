@@ -1,5 +1,5 @@
 /**
- * \author {AUTHOR}
+ * \author Robbe Decapmaker <debber@dcpm.be>
  */
 
 #ifndef _CONFIG_H_
@@ -17,6 +17,18 @@
 // Connmgr related defines
 #define MAX_CONC_CONN 3
 #define LISTEN_PORT 5678
+#ifndef TIMEOUT
+#define TIMEOUT 5
+#endif // !TIMEOUT
+
+// Datamgr retlated defines
+#ifndef SET_MAX_TEMP
+#define SET_MAX_TEMP 20
+#endif // !SET_MAX_TEMP
+#ifndef SET_MIN_TEMP
+#define SET_MIN_TEMP 10
+#endif // !SET_MIN_TEMP
+
 
 typedef uint16_t sensor_id_t;
 typedef double sensor_value_t;
