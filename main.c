@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <pthread.h>
 
 /*
  * Function defines
@@ -21,11 +22,18 @@ int end_log_process();
 /*
  * Global variables
  */
+// Pipe related variables
 char write_message[SIZE];
 char read_message[SIZE];
 pid_t pid;
 int fd[2];
 
+// thread related variables
+pthread_mutex_t mutex;
+
+/*
+* Main function
+*/
 int main(int argc, char *argv[])
 {
   // Create the log process 
@@ -133,6 +141,9 @@ int create_log_process(){
 }
 
 int write_to_log_process(char *msg){
+  // Lock the mutex so that we have no race conditions
+  pthread_mutex_lock(&mutex);
+
   // Clear the write buffer
   memset(write_message, 0, SIZE);
 
@@ -144,6 +155,9 @@ int write_to_log_process(char *msg){
 
   // Pass the log through the pipe
   write(fd[WRITE_END], write_message, SIZE);
+
+  // Unlock the mutex so that other processes can write as well
+  pthread_mutex_unlock(&mutex);
   return 0;
 }
 
