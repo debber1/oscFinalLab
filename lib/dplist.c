@@ -196,7 +196,7 @@ void *dpl_get_element_at_index(dplist_t *list, int index) {
 int dpl_get_index_of_element(dplist_t *list, void *element) {
   // If we receive a NULL pointer, return NULL
   if (list == NULL) {
-    return NULL;
+    return -1;
   }
 
   int foundAt = -1;
