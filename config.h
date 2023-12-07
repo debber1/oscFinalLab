@@ -8,10 +8,15 @@
 #include <stdint.h>
 #include <time.h>
 
+// Pipe related defines
 #define SIZE 4096
 #define READ_END 0
 #define WRITE_END 1
 #define DELIMITER ")()("
+
+// Connmgr related defines
+#define MAX_CONC_CONN 3
+#define LISTEN_PORT 5678
 
 typedef uint16_t sensor_id_t;
 typedef double sensor_value_t;
