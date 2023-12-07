@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
+#include "connmgr.h"
 
 /*
  * Function defines
@@ -43,7 +44,8 @@ int main(int argc, char *argv[])
   }
   write_to_log_process("Started the logger");
 
-
+  // start the connection manager
+  connmgr_init(MAX_CONC_CONN, LISTEN_PORT);
 
   // End the log process
   write_to_log_process("Ending log process");

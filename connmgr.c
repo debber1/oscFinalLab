@@ -8,6 +8,7 @@
 int connmgr_init(int MAX_CONN, int PORT) {
   tcpsock_t *server;
   int conn_counter = 0;
+  write_to_log_process("Started the connection manager");
 
   tcpsock_t *client[MAX_CONN];
   pthread_t tid[MAX_CONN]; /* the thread identifier */
