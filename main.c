@@ -28,7 +28,18 @@ int fd[2];
 
 int main(int argc, char *argv[])
 {
+  // Create the log process 
+  if(create_log_process() != 0){
+    printf("Unable to start log process, exiting.");
+    exit(-1);
+  }
+  write_to_log_process("Started the logger");
 
+
+
+  // End the log process
+  write_to_log_process("Ending log process");
+  end_log_process();
   return 0;
 }
 
