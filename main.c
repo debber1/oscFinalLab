@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include "connmgr.h"
+#include "sbuffer.h"
 
 /*
  * Function defines
@@ -44,8 +45,20 @@ int main(int argc, char *argv[])
   }
   write_to_log_process("Started the logger");
 
+  // make an sbuffer instance
+  sbuffer_t *shared_buffer = NULL;
+  if(sbuffer_init(&shared_buffer) != 0){
+    write_to_log_process("Failed to create the buffer");
+    end_log_process();
+    exit(-1);
+  }
+
+
   // start the connection manager
   connmgr_init(MAX_CONC_CONN, LISTEN_PORT);
+
+  // Free the shared buffer
+  sbuffer_free(&shared_buffer);
 
   // End the log process
   write_to_log_process("Ending log process");
