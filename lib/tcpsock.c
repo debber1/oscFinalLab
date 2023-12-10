@@ -2,6 +2,7 @@
  * \author Luc Vandeurzen
  */
 
+#include <asm-generic/errno.h>
 #define _GNU_SOURCE
 
 #include <sys/socket.h>
@@ -216,6 +217,30 @@ int tcp_receive(tcpsock_t *socket, void *buffer, int *buf_size) {
     TCP_DEBUG_PRINTF(*buf_size < 0, "Recv() failed with errno = %d [%s]", errno, strerror(errno));
     TCP_ERR_HANDLER(*buf_size < 0, return TCP_SOCKOP_ERROR);
     return TCP_NO_ERROR;
+}
+
+int tcp_receive_timeout(tcpsock_t *socket, void *buffer, int *buf_size, int timeout_sec) {
+  struct timeval tv;
+  tv.tv_sec = timeout_sec;
+  tv.tv_usec = 0;
+  setsockopt(socket->sd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
+  TCP_ERR_HANDLER(socket == NULL, return TCP_SOCKET_ERROR);
+  TCP_ERR_HANDLER(socket->cookie != MAGIC_COOKIE, return TCP_SOCKET_ERROR);
+  if ((buffer == NULL) || (buf_size == 0))  //nothing to read
+  {
+    *buf_size = 0;
+    return TCP_NO_ERROR;
+  }
+  *buf_size = recv(socket->sd, buffer, *buf_size, 0);
+  TCP_DEBUG_PRINTF(*buf_size == 0, "Recv() : no connection to peer\n");
+  TCP_ERR_HANDLER(*buf_size == EAGAIN, return TCP_TIMEOUT_ERROR);
+  TCP_ERR_HANDLER(*buf_size == EWOULDBLOCK, return TCP_TIMEOUT_ERROR);
+  TCP_ERR_HANDLER(*buf_size == 0, return TCP_CONNECTION_CLOSED);
+  TCP_DEBUG_PRINTF((*buf_size < 0) && (errno == ENOTCONN), "Recv() : no connection to peer\n");
+  TCP_ERR_HANDLER((*buf_size < 0) && (errno == ENOTCONN), return TCP_CONNECTION_CLOSED);
+  TCP_DEBUG_PRINTF(*buf_size < 0, "Recv() failed with errno = %d [%s]", errno, strerror(errno));
+  TCP_ERR_HANDLER(*buf_size < 0, return TCP_SOCKOP_ERROR);
+  return TCP_NO_ERROR;
 }
 
 int tcp_get_ip_addr(tcpsock_t *socket, char **ip_addr) {

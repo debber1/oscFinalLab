@@ -4,6 +4,9 @@
 
 #include "config.h"
 #include "connmgr.h"
+#include "lib/tcpsock.h"
+#include <pthread.h>
+#include <stdio.h>
 
 int connmgr_init(int MAX_CONN, int PORT) {
   tcpsock_t *server;
@@ -21,8 +24,6 @@ int connmgr_init(int MAX_CONN, int PORT) {
       if (tcp_wait_for_connection(server, &client[conn_counter]) != TCP_NO_ERROR) exit(EXIT_FAILURE);
       /* create the thread */
       pthread_create(&tid[conn_counter], &attr, handle_client, client[conn_counter]);
-      /* wait for the thread to exit */
-      printf("Incoming client connection\n");
       conn_counter++;
     } while (conn_counter < MAX_CONN);
     do{
@@ -42,7 +43,11 @@ void *handle_client(void *param){
   do {
     // read sensor ID
     bytes = sizeof(data.id);
-    result = tcp_receive(client, (void *) &data.id, &bytes);
+    result = tcp_receive_timeout(client, (void *) &data.id, &bytes, TIMEOUT);
+    if(result != 0){
+      write_to_log_process("An errror was detected during the receiving of tcp data");
+      return 0;
+    }
     // read temperature
     bytes = sizeof(data.value);
     result = tcp_receive(client, (void *) &data.value, &bytes);
