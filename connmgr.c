@@ -46,6 +46,7 @@ void *handle_client(void *param){
     result = tcp_receive_timeout(client, (void *) &data.id, &bytes, TIMEOUT);
     if(result != 0){
       write_to_log_process("An errror was detected during the receiving of tcp data");
+      tcp_close(&client);
       return 0;
     }
     // read temperature
