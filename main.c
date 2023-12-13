@@ -14,6 +14,7 @@
 #include "connmgr.h"
 #include "sbuffer.h"
 #include "sensor_db.h"
+#include "datamgr.h"
 
 /*
  * Function defines
@@ -63,24 +64,31 @@ int main(int argc, char *argv[])
   parameters_connmgr->listen_port = LISTEN_PORT;
   parameters_connmgr->shared_buffer = shared_buffer;
 
-  // Init the parameters for the connmgr 
+  // Init the parameters for the sensor_db
   sensor_db_param_t *parameters_sensor_db = (sensor_db_param_t*) malloc(sizeof(sensor_db_param_t));
   parameters_sensor_db->shared_buffer = shared_buffer;
+
+  // Init the parameters for the datamgr
+  datamgr_param_t *parameters_datamgr = (datamgr_param_t*) malloc(sizeof(datamgr_param_t));
+  parameters_datamgr->shared_buffer = shared_buffer;
 
   // start the connection manager
   pthread_attr_init(&attr_main);
   pthread_t tid_connmgr; 
   pthread_create(&tid_connmgr, &attr_main, connmgr_init, parameters_connmgr);
 
-
   // start the connection manager
   pthread_t tid_sensor_db; 
   pthread_create(&tid_sensor_db, &attr_main, sensor_db_runner, parameters_sensor_db);
 
+  // start the connection manager
+  pthread_t tid_datamgr; 
+  pthread_create(&tid_datamgr, &attr_main, datamgr_init, parameters_datamgr);
 
   // Wait for all threads to finish
   pthread_join(tid_connmgr, NULL);
   pthread_join(tid_sensor_db, NULL);
+  pthread_join(tid_datamgr, NULL);
 
   // Free the shared buffer
   sbuffer_free(&shared_buffer);
