@@ -18,6 +18,6 @@
  * \param: PORT this is the port on which the connmgr should listen for incomming connections
  * \return: status code which gives information about the execution state
  */
-int connmgr_init(int MAX_CONN, int PORT);
+void *connmgr_init(void *param);
 void *handle_client(void *param);
 #endif /* _CONNNMGR_H_ */

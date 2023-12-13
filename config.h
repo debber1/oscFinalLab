@@ -43,4 +43,11 @@ typedef struct {
 // global function to write to the log process
 int write_to_log_process(char *msg);
 
+// struct for parameters given to connmgr
+typedef struct {
+  int max_con;
+  int listen_port;
+  void* shared_buffer;
+} connmgr_param_t;
+
 #endif /* _CONFIG_H_ */

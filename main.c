@@ -31,7 +31,7 @@ pid_t pid;
 int fd[2];
 
 // thread related variables
-pthread_mutex_t mutex;
+pthread_mutex_t mutex_main;
 
 /*
 * Main function
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
   write_to_log_process("Started the logger");
 
   // make an sbuffer instance
-  sbuffer_t *shared_buffer = NULL;
+  sbuffer_t *shared_buffer;
   if(sbuffer_init(&shared_buffer) != 0){
     write_to_log_process("Failed to create the buffer");
     end_log_process();
@@ -54,11 +54,21 @@ int main(int argc, char *argv[])
   }
 
 
+  // Init the parameters for the connmgr 
+  connmgr_param_t *parameters_connmgr = (connmgr_param_t*) malloc(sizeof(connmgr_param_t));
+  parameters_connmgr->max_con = MAX_CONC_CONN;
+  parameters_connmgr->listen_port = LISTEN_PORT;
+  parameters_connmgr->shared_buffer = shared_buffer;
+
+
   // start the connection manager
-  connmgr_init(MAX_CONC_CONN, LISTEN_PORT);
+  connmgr_init(parameters_connmgr);
 
   // Free the shared buffer
   sbuffer_free(&shared_buffer);
+
+  // Free alloced structs
+  free(parameters_connmgr);
 
   // End the log process
   write_to_log_process("Ending log process");
@@ -157,7 +167,7 @@ int create_log_process(){
 
 int write_to_log_process(char *msg){
   // Lock the mutex so that we have no race conditions
-  pthread_mutex_lock(&mutex);
+  pthread_mutex_lock(&mutex_main);
 
   // Clear the write buffer
   memset(write_message, 0, SIZE);
@@ -172,7 +182,7 @@ int write_to_log_process(char *msg){
   write(fd[WRITE_END], write_message, SIZE);
 
   // Unlock the mutex so that other processes can write as well
-  pthread_mutex_unlock(&mutex);
+  pthread_mutex_unlock(&mutex_main);
   return 0;
 }
 

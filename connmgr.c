@@ -5,10 +5,17 @@
 #include "config.h"
 #include "connmgr.h"
 #include "lib/tcpsock.h"
+#include "sbuffer.h"
 #include <pthread.h>
 #include <stdio.h>
 
-int connmgr_init(int MAX_CONN, int PORT) {
+void *connmgr_init(void *param) {
+  // get parameters
+  connmgr_param_t *parameters = (connmgr_param_t*)param;
+  int MAX_CONN = parameters->max_con;
+  int PORT = parameters->listen_port;
+  sbuffer_t *shared_buffer = parameters->shared_buffer;
+
   tcpsock_t *server;
   int conn_counter = 0;
   write_to_log_process("Started the connection manager");
