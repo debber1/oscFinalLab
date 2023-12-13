@@ -96,6 +96,7 @@ int main(int argc, char *argv[])
   // Free alloced structs
   free(parameters_connmgr);
   free(parameters_sensor_db);
+  free(parameters_datamgr);
 
   // End the log process
   write_to_log_process("Ending log process");
