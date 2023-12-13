@@ -9,12 +9,13 @@
 #include <pthread.h>
 #include <stdio.h>
 
+sbuffer_t *shared_buffer;
 void *connmgr_init(void *param) {
   // get parameters
   connmgr_param_t *parameters = (connmgr_param_t*)param;
   int MAX_CONN = parameters->max_con;
   int PORT = parameters->listen_port;
-  sbuffer_t *shared_buffer = parameters->shared_buffer;
+  shared_buffer = parameters->shared_buffer;
 
   tcpsock_t *server;
   int conn_counter = 0;
@@ -63,8 +64,8 @@ void *handle_client(void *param){
     bytes = sizeof(data.ts);
     result = tcp_receive(client, (void *) &data.ts, &bytes);
     if ((result == TCP_NO_ERROR) && bytes) {
-      printf("sensor id = %" PRIu16 " - temperature = %g - timestamp = %ld\n", data.id, data.value,
-        (long int) data.ts);
+      sbuffer_insert(shared_buffer, &data);
+      printf("sensor id = %" PRIu16 " - temperature = %g - timestamp = %ld\n", data.id, data.value,(long int) data.ts);
     }
   } while (result == TCP_NO_ERROR);
   if (result == TCP_CONNECTION_CLOSED)

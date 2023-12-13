@@ -11,6 +11,12 @@
 #include <pthread.h>
 #include "config.h"
 #include "lib/tcpsock.h"
+#include "sbuffer.h"
+
+typedef struct {
+  tcpsock_t *client;
+  sbuffer_t *shared_buffer;
+} client_handler_param_t;
 
 /*
  * This function inits the connection manager
