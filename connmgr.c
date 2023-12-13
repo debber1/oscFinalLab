@@ -26,21 +26,27 @@ void *connmgr_init(void *param) {
   pthread_attr_t attr; /* set of thread attributes */
   /* set the default attributes of the thread */
   pthread_attr_init(&attr);
-    printf("Test server is started\n");
-    if (tcp_passive_open(&server, PORT) != TCP_NO_ERROR) exit(EXIT_FAILURE);
-    do {
-      if (tcp_wait_for_connection(server, &client[conn_counter]) != TCP_NO_ERROR) exit(EXIT_FAILURE);
-      /* create the thread */
-      pthread_create(&tid[conn_counter], &attr, handle_client, client[conn_counter]);
-      conn_counter++;
-    } while (conn_counter < MAX_CONN);
-    do{
-      conn_counter--;
-      pthread_join(tid[conn_counter], NULL);
-    } while (conn_counter > 0);
-    if (tcp_close(&server) != TCP_NO_ERROR) exit(EXIT_FAILURE);
-    printf("Test server is shutting down\n");
-    return 0;
+  printf("Test server is started\n");
+  if (tcp_passive_open(&server, PORT) != TCP_NO_ERROR) exit(EXIT_FAILURE);
+  do {
+    if (tcp_wait_for_connection(server, &client[conn_counter]) != TCP_NO_ERROR) exit(EXIT_FAILURE);
+    /* create the thread */
+    pthread_create(&tid[conn_counter], &attr, handle_client, client[conn_counter]);
+    conn_counter++;
+  } while (conn_counter < MAX_CONN);
+  do{
+    conn_counter--;
+    pthread_join(tid[conn_counter], NULL);
+  } while (conn_counter > 0);
+  
+  sensor_data_t *dummy = malloc(sizeof(sensor_data_t));
+  dummy->id = 0;
+  sbuffer_insert(shared_buffer, dummy);
+  free(dummy);
+
+  if (tcp_close(&server) != TCP_NO_ERROR) exit(EXIT_FAILURE);
+  printf("Test server is shutting down\n");
+  return 0;
 }
 
 

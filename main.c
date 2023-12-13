@@ -72,12 +72,14 @@ int main(int argc, char *argv[])
   pthread_t tid_connmgr; 
   pthread_create(&tid_connmgr, &attr_main, connmgr_init, parameters_connmgr);
 
-  pthread_join(tid_connmgr, NULL);
 
   // start the connection manager
   pthread_t tid_sensor_db; 
   pthread_create(&tid_sensor_db, &attr_main, sensor_db_runner, parameters_sensor_db);
 
+
+  // Wait for all threads to finish
+  pthread_join(tid_connmgr, NULL);
   pthread_join(tid_sensor_db, NULL);
 
   // Free the shared buffer
