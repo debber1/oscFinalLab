@@ -69,5 +69,5 @@ zip:
 ## New targets:
 main: main.c connmgr.c
 	cppcheck .
-	gcc -g -Wall main.c connmgr.c sbuffer.c lib/tcpsock.c -o main.out -lpthread -std=c11 -DTIMEOUT=5
+	gcc -g -Wall main.c connmgr.c sbuffer.c sensor_db.c lib/tcpsock.c -o main.out -lpthread -std=c11 -DTIMEOUT=5
 

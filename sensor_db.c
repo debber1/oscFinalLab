@@ -3,9 +3,35 @@
 */
 
 #include "sensor_db.h"
-#include "logger.h"
+#include "config.h"
+#include "sbuffer.h"
+#include <pthread.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <unistd.h>
+
+pthread_mutex_t mutex_reader;
+void *sensor_db_runner(void *param){
+
+  // Getting the parameters
+  sensor_db_param_t *parameters = (sensor_db_param_t*)param;
+  sbuffer_t *shared_buffer = parameters->shared_buffer;
+  char* file_name = "sensor_data_out.csv";
+
+  FILE *db = open_db(file_name, true);
+
+  sensor_data_t *data_ptr = malloc(sizeof(sensor_data_t));
+
+  while(sbuffer_remove(shared_buffer, data_ptr) == 0){
+    pthread_mutex_lock(&mutex_reader);
+    insert_sensor(db, data_ptr->id, data_ptr->value, data_ptr->ts);
+    pthread_mutex_unlock(&mutex_reader);
+  }
+
+  free(data_ptr);
+  close_db(db);
+  pthread_exit(0);
+}
 
 bool file_exists(char *filename){
   FILE *check = fopen(filename, "r");
@@ -19,15 +45,9 @@ bool file_exists(char *filename){
 }
 
 FILE * open_db(char * filename, bool append){
-  // Create the log process
-  if(create_log_process() != 0){
-    return NULL;
-  }
-
   // Check if the filename is good
   if(filename == NULL){
     write_to_log_process("DB file name is invalid");
-    end_log_process();
     return NULL;
   }
 
@@ -70,6 +90,7 @@ int insert_sensor(FILE * f, sensor_id_t id, sensor_value_t value, sensor_ts_t ts
   int status = fprintf(f, "%hu, %g, %ld\n", id, value, ts);
 
   if(status > 0){
+    fflush(f);
     write_to_log_process("Data inserted.");
   } else {
     write_to_log_process("Data failed to insert.");
@@ -95,9 +116,6 @@ int close_db(FILE * f){
 
   // We have succesfully closed the DB
   write_to_log_process("Data file closed.");
-
-  // Kill the logging process
-  end_log_process();
 
   return status;
 }

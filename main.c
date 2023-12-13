@@ -13,6 +13,7 @@
 #include <pthread.h>
 #include "connmgr.h"
 #include "sbuffer.h"
+#include "sensor_db.h"
 
 /*
  * Function defines
@@ -48,7 +49,7 @@ int main(int argc, char *argv[])
   write_to_log_process("Started the logger");
 
   // make an sbuffer instance
-  sbuffer_t *shared_buffer;
+  sbuffer_t *shared_buffer = NULL;
   if(sbuffer_init(&shared_buffer) != 0){
     write_to_log_process("Failed to create the buffer");
     end_log_process();
@@ -62,6 +63,9 @@ int main(int argc, char *argv[])
   parameters_connmgr->listen_port = LISTEN_PORT;
   parameters_connmgr->shared_buffer = shared_buffer;
 
+  // Init the parameters for the connmgr 
+  sensor_db_param_t *parameters_sensor_db = (sensor_db_param_t*) malloc(sizeof(sensor_db_param_t));
+  parameters_sensor_db->shared_buffer = shared_buffer;
 
   // start the connection manager
   pthread_attr_init(&attr_main);
@@ -69,11 +73,19 @@ int main(int argc, char *argv[])
   pthread_create(&tid_connmgr, &attr_main, connmgr_init, parameters_connmgr);
 
   pthread_join(tid_connmgr, NULL);
+
+  // start the connection manager
+  pthread_t tid_sensor_db; 
+  pthread_create(&tid_sensor_db, &attr_main, sensor_db_runner, parameters_sensor_db);
+
+  pthread_join(tid_sensor_db, NULL);
+
   // Free the shared buffer
   sbuffer_free(&shared_buffer);
 
   // Free alloced structs
   free(parameters_connmgr);
+  free(parameters_sensor_db);
 
   // End the log process
   write_to_log_process("Ending log process");

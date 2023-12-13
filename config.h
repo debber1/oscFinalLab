@@ -50,4 +50,9 @@ typedef struct {
   void* shared_buffer;
 } connmgr_param_t;
 
+// struct for parameters given to connmgr
+typedef struct {
+  void* shared_buffer;
+} sensor_db_param_t;
+
 #endif /* _CONFIG_H_ */
