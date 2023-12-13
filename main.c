@@ -3,6 +3,7 @@
 */
 
 #include "config.h"
+#include <bits/pthreadtypes.h>
 #include <string.h>
 #include <stdbool.h>
 #include <sys/wait.h>
@@ -32,6 +33,7 @@ int fd[2];
 
 // thread related variables
 pthread_mutex_t mutex_main;
+pthread_attr_t attr_main;
 
 /*
 * Main function
@@ -62,8 +64,11 @@ int main(int argc, char *argv[])
 
 
   // start the connection manager
-  connmgr_init(parameters_connmgr);
+  pthread_attr_init(&attr_main);
+  pthread_t tid_connmgr; 
+  pthread_create(&tid_connmgr, &attr_main, connmgr_init, parameters_connmgr);
 
+  pthread_join(tid_connmgr, NULL);
   // Free the shared buffer
   sbuffer_free(&shared_buffer);
 
