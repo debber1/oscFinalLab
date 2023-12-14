@@ -35,4 +35,11 @@ void *datamgr_init(void* param);
  */
 dplist_t *insert_mappings(dplist_t *list, FILE *fp_file);
 
+/**
+ * This method should be called to clean up the datamgr, and to free all used memory. 
+ * After this, any call to datamgr_get_room_id, datamgr_get_avg, datamgr_get_last_modified or datamgr_get_total_sensors will not return a valid result
+ * \param list the list to free data from
+ */
+void datamgr_free(dplist_t *list);
+
 #endif // !DATAMGR_H_

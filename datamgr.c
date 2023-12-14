@@ -3,7 +3,6 @@
 */
 
 #include "datamgr.h"
-#include <stdio.h>
 
 sbuffer_t *shared_buffer_manager;
 
@@ -18,6 +17,8 @@ void *datamgr_init(void* param){
   data = dpl_create(sensor_map_copy, sensor_map_free, sensor_map_compare);
   data = insert_mappings(data, fp_sensor_map);
   
+  fclose(fp_sensor_map);
+  datamgr_free(data);
   return 0;
 }
 
@@ -45,14 +46,23 @@ dplist_t *insert_mappings(dplist_t *list, FILE *fp_file){
   return list;
 }
 
+
+void datamgr_free(dplist_t *list){
+  dpl_free(&list, true);
+}
+
 void * sensor_map_copy(void * element) {
   sensor_map_t* copy = malloc(sizeof (sensor_map_t));
   copy->sensorId = ((sensor_map_t*)element)->sensorId;
   copy->roomId = ((sensor_map_t*)element)->roomId;
+  copy->readings = ((sensor_map_t*)element)->readings;
+  copy->lastModified = ((sensor_map_t*)element)->lastModified;
   return (void *) copy;
 }
 
 void sensor_map_free(void ** element) {
+  sensor_map_t *dummy = (sensor_map_t*)*element;
+  dpl_free(&(dummy->readings), true);
   free(*element);
   *element = NULL;
 }
