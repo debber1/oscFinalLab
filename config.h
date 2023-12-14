@@ -6,6 +6,7 @@
 #define _CONFIG_H_
 
 #include <stdint.h>
+#include "lib/dplist.h"
 #include <time.h>
 
 // Pipe related defines
@@ -34,6 +35,8 @@ typedef uint16_t sensor_id_t;
 typedef double sensor_value_t;
 typedef time_t sensor_ts_t;         // UTC timestamp as returned by time() - notice that the size of time_t is different on 32/64 bit machine
 
+typedef uint16_t room_id_t;
+
 typedef struct {
     sensor_id_t id;
     sensor_value_t value;
@@ -59,5 +62,15 @@ typedef struct {
 typedef struct {
   void* shared_buffer;
 } datamgr_param_t;
+
+/**
+ * Structure to hold mapping of room to sensor
+ */
+typedef struct {
+  sensor_id_t sensorId;
+  room_id_t roomId;
+  dplist_t *readings;
+  time_t lastModified;
+} sensor_map_t;
 
 #endif /* _CONFIG_H_ */
