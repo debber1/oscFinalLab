@@ -23,8 +23,6 @@ void *datamgr_init(void* param){
   // get sensor data
   sensor_data_t *data_ptr = malloc(sizeof(sensor_data_t));
   while (sbuffer_peek(shared_buffer_manager, data_ptr) == 0) {
-    printf("sensor: %i, time: %ld , value: %g\n", data_ptr->id, data_ptr->ts, data_ptr->value);
-    fflush(stdout);
     data = insert_data_point(data, data_ptr);
   }
   
@@ -45,6 +43,8 @@ dplist_t *insert_data_point(dplist_t *list, sensor_data_t *dataPoint){
       dummy_map->readings = dpl_remove_at_index(dummy_map->readings, 0, true);
     }
     dummy_map->readings = dpl_insert_at_index(dummy_map->readings, dataPoint, RUN_AVG_LENGTH - 1, true);
+    time_t current_time = time(&current_time);
+    dummy_map->lastModified = current_time;
     break;
   }
   return list;
