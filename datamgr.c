@@ -3,6 +3,7 @@
 */
 
 #include "datamgr.h"
+#include "lib/dplist.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -22,12 +23,30 @@ void *datamgr_init(void* param){
   // get sensor data
   sensor_data_t *data_ptr = malloc(sizeof(sensor_data_t));
   while (sbuffer_peek(shared_buffer_manager, data_ptr) == 0) {
+    insert_data_point(data, data_ptr);
   }
   
   free(data_ptr);
   fclose(fp_sensor_map);
   datamgr_free(data);
   return 0;
+}
+
+dplist_t *insert_data_point(dplist_t *list, sensor_data_t *dataPoint){
+  sensor_map_t *dummy_map;
+  for (int i = 0; i < dpl_size(list); i++) {
+    dummy_map = dpl_get_element_at_index(list, i);
+    if(dummy_map->sensorId != dataPoint->id){
+      continue;
+    }
+    if(dpl_size(dummy_map->readings) == RUN_AVG_LENGTH){
+      list = dpl_remove_at_index(list, 0, true);
+    }
+    dummy_map->readings = dpl_insert_at_index(dummy_map->readings, dataPoint, RUN_AVG_LENGTH - 1, true);
+    list = dpl_remove_at_index(list, i, true);
+    list = dpl_insert_at_index(list, dummy_map, i,true);
+  }
+  return list;
 }
 
 dplist_t *insert_mappings(dplist_t *list, FILE *fp_file){

@@ -28,6 +28,11 @@ int sensor_data_compare(void * x, void * y);
 void *datamgr_init(void* param);
 
 /**
+ * Inserts a sensor reading into the data list
+ */
+dplist_t *insert_data_point(dplist_t *list, sensor_data_t *dataPoint);
+
+/**
  * Insert all mapping data from file into dplist
  * \param list the list to add the data to 
  * \param fp_file the file containing all relevant mapping data

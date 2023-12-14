@@ -29,6 +29,7 @@
 #ifndef SET_MIN_TEMP
 #define SET_MIN_TEMP 10
 #endif // !SET_MIN_TEMP
+#define RUN_AVG_LENGTH 5
 
 
 typedef uint16_t sensor_id_t;
