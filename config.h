@@ -30,6 +30,7 @@
 #define SET_MIN_TEMP 10
 #endif // !SET_MIN_TEMP
 #define RUN_AVG_LENGTH 5
+#define ABS_MIN -274 // this is below absolute 0, thus not fysically possible
 
 
 typedef uint16_t sensor_id_t;

@@ -3,6 +3,7 @@
 */
 
 #include "datamgr.h"
+#include "config.h"
 #include "lib/dplist.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,12 +25,41 @@ void *datamgr_init(void* param){
   sensor_data_t *data_ptr = malloc(sizeof(sensor_data_t));
   while (sbuffer_peek(shared_buffer_manager, data_ptr) == 0) {
     data = insert_data_point(data, data_ptr);
+    double average = calculate_average_sensor(data, data_ptr->id);
+    if (average > ABS_MIN) {
+    
+    }
   }
   
   free(data_ptr);
   fclose(fp_sensor_map);
   datamgr_free(data);
   return 0;
+}
+
+void parse_average(double average){
+}
+
+double calculate_average_sensor(dplist_t *list, sensor_id_t id){
+  double average = ABS_MIN; 
+  sensor_map_t *dummy_map;
+  for (int i = 0; i < dpl_size(list); i++) {
+    dummy_map = dpl_get_element_at_index(list, i);
+    if(dummy_map->sensorId != id){
+      continue;
+    }
+    dplist_t *temp = dummy_map->readings;
+    int length = dpl_size(temp);
+    if (length != RUN_AVG_LENGTH) {
+      continue; 
+    }
+    for (int j = 0; j < RUN_AVG_LENGTH; j++) {
+      average += ((sensor_data_t*)dpl_get_element_at_index(temp, j))->value;
+    }
+    average /= RUN_AVG_LENGTH;
+    break;
+  }
+  return average;
 }
 
 dplist_t *insert_data_point(dplist_t *list, sensor_data_t *dataPoint){
