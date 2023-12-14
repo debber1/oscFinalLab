@@ -12,6 +12,7 @@
  */
 typedef struct sbuffer_node {
     struct sbuffer_node *next;  /**< a pointer to the next node*/
+    bool is_processed;          /**< a boolean to keep track of the processing state of the node*/
     sensor_data_t data;         /**< a structure containing the data */
 } sbuffer_node_t;
 
@@ -66,11 +67,20 @@ int sbuffer_remove(sbuffer_t *buffer, sensor_data_t *data) {
     }
   } 
 
+  // wait for valid data
+  if (buffer->head->is_processed == false){
+    condition = 1;
+    pthread_cond_signal(&condvar);
+    while (condition == 1){
+      pthread_cond_wait(&condvar, &mutex);
+    }
+  } 
+
   // Check if we are at the end of the stream
   if(buffer->head->data.id == 0){
     pthread_mutex_unlock(&mutex);
     // Tell other threads to wake up and read the end of stream
-    condition = 1;
+    condition = 2;
     pthread_cond_signal(&condvar);
     return SBUFFER_NO_DATA;
   }
@@ -89,24 +99,66 @@ int sbuffer_remove(sbuffer_t *buffer, sensor_data_t *data) {
   return SBUFFER_SUCCESS;
 }
 
+int sbuffer_peek(sbuffer_t *buffer, sensor_data_t *data) {
+  pthread_mutex_lock(&mutex);
+  sbuffer_node_t *dummy;
+  if (buffer == NULL){
+    pthread_mutex_unlock(&mutex);
+    return SBUFFER_FAILURE;
+  }
+
+  // wait for new data
+  if (buffer->head == NULL){
+    condition = 0;
+    while (condition == 0){
+      pthread_cond_wait(&condvar, &mutex);
+    }
+  } 
+
+  // wait for invalid data
+  if (buffer->head->is_processed == true){
+    condition = 2;
+    while (condition == 2){
+      pthread_cond_wait(&condvar, &mutex);
+    }
+  } 
+
+  // Check if we are at the end of the stream
+  if(buffer->head->data.id == 0){
+    pthread_mutex_unlock(&mutex);
+    // Tell other threads to wake up and read the end of stream
+    condition = 2;
+    pthread_cond_signal(&condvar);
+    return SBUFFER_NO_DATA;
+  }
+
+  *data = buffer->head->data;
+  dummy = buffer->head;
+  dummy->is_processed = true;
+  condition = 2;
+  pthread_mutex_unlock(&mutex);
+  return SBUFFER_SUCCESS;
+}
+
 int sbuffer_insert(sbuffer_t *buffer, sensor_data_t *data) {
     sbuffer_node_t *dummy;
     if (buffer == NULL) return SBUFFER_FAILURE;
     dummy = malloc(sizeof(sbuffer_node_t));
     if (dummy == NULL) return SBUFFER_FAILURE;
     dummy->data = *data;
+    dummy->is_processed = false;
     dummy->next = NULL;
     pthread_mutex_lock(&mutex);
     if (buffer->tail == NULL) // buffer empty (buffer->head should also be NULL
     {
       buffer->head = buffer->tail = dummy;
       condition = 1;
-      pthread_cond_signal(&condvar);
     } else // buffer not empty
     {
-        buffer->tail->next = dummy;
-        buffer->tail = buffer->tail->next;
+      buffer->tail->next = dummy;
+      buffer->tail = buffer->tail->next;
     }
+    pthread_cond_signal(&condvar);
     pthread_mutex_unlock(&mutex);
     return SBUFFER_SUCCESS;
 }

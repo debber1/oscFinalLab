@@ -3,6 +3,8 @@
 */
 
 #include "datamgr.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 sbuffer_t *shared_buffer_manager;
 
@@ -16,7 +18,13 @@ void *datamgr_init(void* param){
   FILE *fp_sensor_map = fopen("room_sensor.map", "r");
   data = dpl_create(sensor_map_copy, sensor_map_free, sensor_map_compare);
   data = insert_mappings(data, fp_sensor_map);
+
+  // get sensor data
+  sensor_data_t *data_ptr = malloc(sizeof(sensor_data_t));
+  while (sbuffer_peek(shared_buffer_manager, data_ptr) == 0) {
+  }
   
+  free(data_ptr);
   fclose(fp_sensor_map);
   datamgr_free(data);
   return 0;
