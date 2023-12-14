@@ -70,11 +70,13 @@ void calculate_average_sensor(dplist_t *list, sensor_id_t id){
 
 dplist_t *insert_data_point(dplist_t *list, sensor_data_t *dataPoint){
   sensor_map_t *dummy_map;
+  bool found = false;
   for (int i = 0; i < dpl_size(list); i++) {
     dummy_map = dpl_get_element_at_index(list, i);
     if(dummy_map->sensorId != dataPoint->id){
       continue;
     }
+    found = true;
     if(dpl_size(dummy_map->readings) == RUN_AVG_LENGTH){
       dummy_map->readings = dpl_remove_at_index(dummy_map->readings, 0, true);
     }
@@ -82,6 +84,11 @@ dplist_t *insert_data_point(dplist_t *list, sensor_data_t *dataPoint){
     time_t current_time = time(&current_time);
     dummy_map->lastModified = current_time;
     break;
+  }
+  if(!found){
+    char buffer[300];
+    snprintf(buffer, 300, "Received sensor data with invalid sensor node ID %i", dataPoint->id);
+    write_to_log_process(buffer);
   }
   return list;
 }
