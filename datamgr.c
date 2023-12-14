@@ -25,10 +25,7 @@ void *datamgr_init(void* param){
   sensor_data_t *data_ptr = malloc(sizeof(sensor_data_t));
   while (sbuffer_peek(shared_buffer_manager, data_ptr) == 0) {
     data = insert_data_point(data, data_ptr);
-    double average = calculate_average_sensor(data, data_ptr->id);
-    if (average > ABS_MIN) {
-    
-    }
+    calculate_average_sensor(data, data_ptr->id);
   }
   
   free(data_ptr);
@@ -37,10 +34,7 @@ void *datamgr_init(void* param){
   return 0;
 }
 
-void parse_average(double average){
-}
-
-double calculate_average_sensor(dplist_t *list, sensor_id_t id){
+void calculate_average_sensor(dplist_t *list, sensor_id_t id){
   double average = ABS_MIN; 
   sensor_map_t *dummy_map;
   for (int i = 0; i < dpl_size(list); i++) {
@@ -53,13 +47,25 @@ double calculate_average_sensor(dplist_t *list, sensor_id_t id){
     if (length != RUN_AVG_LENGTH) {
       continue; 
     }
+    average = 0;
     for (int j = 0; j < RUN_AVG_LENGTH; j++) {
       average += ((sensor_data_t*)dpl_get_element_at_index(temp, j))->value;
     }
     average /= RUN_AVG_LENGTH;
+    printf("avg = %g", average);
+    
+    if(average > SET_MAX_TEMP){
+      char buffer[300];
+      snprintf(buffer, 300, "Sensor node %i reports it's too hot (avg temp = %g)", dummy_map->sensorId, average);
+      write_to_log_process(buffer);
+    }
+    if(average < SET_MIN_TEMP){
+      char buffer[300];
+      snprintf(buffer, 300, "Sensor node %i reports it's too cold (avg temp = %g)", dummy_map->sensorId, average);
+      write_to_log_process(buffer);
+    }
     break;
   }
-  return average;
 }
 
 dplist_t *insert_data_point(dplist_t *list, sensor_data_t *dataPoint){

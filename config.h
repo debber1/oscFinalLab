@@ -13,7 +13,7 @@
 #define SIZE 4096
 #define READ_END 0
 #define WRITE_END 1
-#define DELIMITER ")()("
+#define DELIMITER "$"
 
 // Connmgr related defines
 #define MAX_CONC_CONN 3

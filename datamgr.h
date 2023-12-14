@@ -26,8 +26,7 @@ void sensor_data_free(void ** element);
 int sensor_data_compare(void * x, void * y);
 
 void *datamgr_init(void* param);
-void parse_average(double average);
-double calculate_average_sensor(dplist_t *list, sensor_id_t id);
+void calculate_average_sensor(dplist_t *list, sensor_id_t id);
 
 /**
  * Inserts a sensor reading into the data list
