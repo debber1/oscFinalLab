@@ -58,8 +58,24 @@ void *handle_client(void *param){
     // read sensor ID
     bytes = sizeof(data.id);
     result = tcp_receive_timeout(client, (void *) &data.id, &bytes, TIMEOUT);
+    if(result == TCP_TIMEOUT_ERROR){
+      char buffer[300];
+      snprintf(buffer, 300, "Sensor node %i has timed out", data.id);
+      write_to_log_process(buffer);
+      tcp_close(&client);
+      return 0;
+    }
+    if(result == TCP_CONNECTION_CLOSED){
+      char buffer[300];
+      snprintf(buffer, 300, "Sensor node %i has closed the connection", data.id);
+      write_to_log_process(buffer);
+      tcp_close(&client);
+      return 0;
+    }
     if(result != 0){
-      write_to_log_process("An errror was detected during the receiving of tcp data");
+      char buffer[300];
+      snprintf(buffer, 300, "Sensor node %i has had an error with the connection", data.id);
+      write_to_log_process(buffer);
       tcp_close(&client);
       return 0;
     }
