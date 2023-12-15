@@ -91,7 +91,9 @@ int insert_sensor(FILE * f, sensor_id_t id, sensor_value_t value, sensor_ts_t ts
 
   if(status > 0){
     fflush(f);
-    write_to_log_process("Data inserted.");
+    char buffer[300];
+    snprintf(buffer, 300, "Data insertion from sensor %i succeeded.", id);
+    write_to_log_process(buffer);
   } else {
     write_to_log_process("Data failed to insert.");
   }
