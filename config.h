@@ -16,8 +16,6 @@
 #define DELIMITER "$"
 
 // Connmgr related defines
-#define MAX_CONC_CONN 3
-#define LISTEN_PORT 5678
 #ifndef TIMEOUT
 #define TIMEOUT 5
 #endif // !TIMEOUT

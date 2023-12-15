@@ -42,6 +42,26 @@ pthread_attr_t attr_main;
 */
 int main(int argc, char *argv[])
 {
+  // First we check the arguments from the CLI
+  if (argc != 3) {
+    printf("Wrong number of CLI arguments\nUsage:\n\tCLI arg 1: TCP port\n\tCLI arg 2: Max number of clients\n\tExample: './sensor_gateway 5678 3'\n");
+    exit(-1);
+  }
+
+  // Get the arguments
+  int tcp_port = atoi(argv[1]);
+  int clients_nr = atoi(argv[2]);
+
+  // Basic input validation
+  if (tcp_port <= 1024) {
+    printf("Use a valid TCP port in the non-root range\nUsage:\n\tCLI arg 1: TCP port\n\tCLI arg 2: Max number of clients\n\tExample: './sensor_gateway 5678 3'\n");
+    exit(-1);
+  }
+  if (clients_nr <= 0) {
+    printf("Provide a valid amount of client connections\nUsage:\n\tCLI arg 1: TCP port\n\tCLI arg 2: Max number of clients\n\tExample: './sensor_gateway 5678 3'\n");
+    exit(-1);
+  }
+
   // Create the log process 
   if(create_log_process() != 0){
     printf("Unable to start log process, exiting.");
@@ -60,8 +80,8 @@ int main(int argc, char *argv[])
 
   // Init the parameters for the connmgr 
   connmgr_param_t *parameters_connmgr = (connmgr_param_t*) malloc(sizeof(connmgr_param_t));
-  parameters_connmgr->max_con = MAX_CONC_CONN;
-  parameters_connmgr->listen_port = LISTEN_PORT;
+  parameters_connmgr->max_con = clients_nr;
+  parameters_connmgr->listen_port = tcp_port;
   parameters_connmgr->shared_buffer = shared_buffer;
 
   // Init the parameters for the sensor_db
