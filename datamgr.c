@@ -52,7 +52,6 @@ void calculate_average_sensor(dplist_t *list, sensor_id_t id){
       average += ((sensor_data_t*)dpl_get_element_at_index(temp, j))->value;
     }
     average /= RUN_AVG_LENGTH;
-    printf("avg = %g", average);
     
     if(average > SET_MAX_TEMP){
       char buffer[300];

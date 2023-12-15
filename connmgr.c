@@ -53,11 +53,18 @@ void *connmgr_init(void *param) {
 void *handle_client(void *param){
   tcpsock_t *client = (tcpsock_t *)param;
   int bytes, result;
+  bool first_connection = true;
   sensor_data_t data;
   do {
     // read sensor ID
     bytes = sizeof(data.id);
     result = tcp_receive_timeout(client, (void *) &data.id, &bytes, TIMEOUT);
+    if(first_connection){
+      char buffer[300];
+      snprintf(buffer, 300, "Sensor node %i has opened a new connection", data.id);
+      write_to_log_process(buffer);
+      first_connection = false;
+    }
     if(result == TCP_TIMEOUT_ERROR){
       char buffer[300];
       snprintf(buffer, 300, "Sensor node %i has timed out", data.id);
