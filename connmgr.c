@@ -26,7 +26,6 @@ void *connmgr_init(void *param) {
   pthread_attr_t attr; /* set of thread attributes */
   /* set the default attributes of the thread */
   pthread_attr_init(&attr);
-  printf("Test server is started\n");
   if (tcp_passive_open(&server, PORT) != TCP_NO_ERROR) exit(EXIT_FAILURE);
   do {
     if (tcp_wait_for_connection(server, &client[conn_counter]) != TCP_NO_ERROR) exit(EXIT_FAILURE);
@@ -45,7 +44,6 @@ void *connmgr_init(void *param) {
   free(dummy);
 
   if (tcp_close(&server) != TCP_NO_ERROR) exit(EXIT_FAILURE);
-  printf("Test server is shutting down\n");
   return 0;
 }
 
@@ -97,10 +95,6 @@ void *handle_client(void *param){
       printf("sensor id = %" PRIu16 " - temperature = %g - timestamp = %ld\n", data.id, data.value,(long int) data.ts);
     }
   } while (result == TCP_NO_ERROR);
-  if (result == TCP_CONNECTION_CLOSED)
-    printf("Peer has closed connection\n");
-  else
-    printf("Error occured on connection to peer\n");
   tcp_close(&client);
   return 0;
 }

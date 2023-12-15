@@ -95,7 +95,7 @@ dplist_t *insert_data_point(dplist_t *list, sensor_data_t *dataPoint){
 dplist_t *insert_mappings(dplist_t *list, FILE *fp_file){
   // Check if the file exists
   if(fp_file == NULL){
-    printf("Not a valid file");
+    write_to_log_process("Insert mappings -- Not a valid file");
     return list;
   }
 
