@@ -28,6 +28,8 @@ void *sensor_db_runner(void *param){
     pthread_mutex_unlock(&mutex_reader);
   }
 
+  write_to_log_process("Closing sensor db");
+
   free(data_ptr);
   close_db(db);
   pthread_exit(0);

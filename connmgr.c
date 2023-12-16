@@ -8,6 +8,7 @@
 #include "sbuffer.h"
 #include <pthread.h>
 #include <stdio.h>
+#include <unistd.h>
 
 sbuffer_t *shared_buffer;
 void *connmgr_init(void *param) {
@@ -42,6 +43,8 @@ void *connmgr_init(void *param) {
   dummy->id = 0;
   sbuffer_insert(shared_buffer, dummy);
   free(dummy);
+
+  write_to_log_process("Closed the connection manager");
 
   if (tcp_close(&server) != TCP_NO_ERROR) exit(EXIT_FAILURE);
   return 0;

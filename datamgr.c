@@ -26,7 +26,11 @@ void *datamgr_init(void* param){
   while (sbuffer_peek(shared_buffer_manager, data_ptr) == 0) {
     data = insert_data_point(data, data_ptr);
     calculate_average_sensor(data, data_ptr->id);
+    char buffer[300];
+    snprintf(buffer, 300, "Sensor node %i reading parsed", data_ptr->id);
+    write_to_log_process(buffer);
   }
+  write_to_log_process("Closing data manager");
   
   free(data_ptr);
   fclose(fp_sensor_map);

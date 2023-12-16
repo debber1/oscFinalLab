@@ -67,6 +67,15 @@ int sbuffer_remove(sbuffer_t *buffer, sensor_data_t *data) {
     }
   } 
 
+  // Check if we are at the end of the stream
+  if(buffer->head->data.id == 0 && buffer->head->is_processed == false){
+    pthread_mutex_unlock(&mutex);
+    // Tell other threads to wake up and read the end of stream
+    condition = 1;
+    pthread_cond_signal(&condvar);
+    return SBUFFER_NO_DATA;
+  }
+
   // wait for valid data
   if (buffer->head->is_processed == false){
     condition = 1;
@@ -84,6 +93,7 @@ int sbuffer_remove(sbuffer_t *buffer, sensor_data_t *data) {
     pthread_cond_signal(&condvar);
     return SBUFFER_NO_DATA;
   }
+
 
   *data = buffer->head->data;
   dummy = buffer->head;
@@ -115,6 +125,15 @@ int sbuffer_peek(sbuffer_t *buffer, sensor_data_t *data) {
     }
   } 
 
+  // Check if we are at the end of the stream
+  if(buffer->head->data.id == 0){
+    pthread_mutex_unlock(&mutex);
+    // Tell other threads to wake up and read the end of stream
+    condition = 2;
+    pthread_cond_signal(&condvar);
+    return SBUFFER_NO_DATA;
+  }
+
   // wait for invalid data
   if (buffer->head->is_processed == true){
     condition = 2;
@@ -136,6 +155,7 @@ int sbuffer_peek(sbuffer_t *buffer, sensor_data_t *data) {
   dummy = buffer->head;
   dummy->is_processed = true;
   condition = 2;
+  pthread_cond_signal(&condvar);
   pthread_mutex_unlock(&mutex);
   return SBUFFER_SUCCESS;
 }
@@ -158,7 +178,10 @@ int sbuffer_insert(sbuffer_t *buffer, sensor_data_t *data) {
       buffer->tail->next = dummy;
       buffer->tail = buffer->tail->next;
     }
-    pthread_cond_signal(&condvar);
+    if(data->id == 0){
+      pthread_cond_signal(&condvar);
+    }
+    pthread_cond_broadcast(&condvar);
     pthread_mutex_unlock(&mutex);
     return SBUFFER_SUCCESS;
 }
