@@ -2,9 +2,6 @@
  * \author Robbe Decapmaker <debber@dcpm.be>
  */
 
-#include <pthread.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include "sbuffer.h"
 
 /**

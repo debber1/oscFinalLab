@@ -3,10 +3,6 @@
 */
 
 #include "datamgr.h"
-#include "config.h"
-#include "lib/dplist.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 sbuffer_t *shared_buffer_manager;
 

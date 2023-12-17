@@ -12,6 +12,7 @@
 #include "config.h"
 #include "lib/tcpsock.h"
 #include "sbuffer.h"
+#include <unistd.h>
 
 typedef struct {
   tcpsock_t *client;

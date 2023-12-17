@@ -3,12 +3,6 @@
 */
 
 #include "sensor_db.h"
-#include "config.h"
-#include "sbuffer.h"
-#include <pthread.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <unistd.h>
 
 pthread_mutex_t mutex_reader;
 void *sensor_db_runner(void *param){

@@ -2,13 +2,7 @@
  * Author: Robbe Decapmaker <debber@dcpm.be>
  */
 
-#include "config.h"
 #include "connmgr.h"
-#include "lib/tcpsock.h"
-#include "sbuffer.h"
-#include <pthread.h>
-#include <stdio.h>
-#include <unistd.h>
 
 sbuffer_t *shared_buffer;
 void *connmgr_init(void *param) {
