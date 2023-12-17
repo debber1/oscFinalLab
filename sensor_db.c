@@ -16,7 +16,7 @@ void *sensor_db_runner(void *param){
   // Getting the parameters
   sensor_db_param_t *parameters = (sensor_db_param_t*)param;
   sbuffer_t *shared_buffer = parameters->shared_buffer;
-  char* file_name = "sensor_data_out.csv";
+  char* file_name = "data.csv";
 
   FILE *db = open_db(file_name, true);
 
