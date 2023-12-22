@@ -25,7 +25,20 @@ void* sensor_data_copy(void * element);
 void sensor_data_free(void ** element);
 int sensor_data_compare(void * x, void * y);
 
+/**
+ * Initialized by the prthread library, this function will async perform
+ * data parsing of the data present in the shared buffer of the program.
+ * \param param this contains the pointer to a datamgr_param_t struct
+ * \return void pointer
+ */
 void *datamgr_init(void* param);
+
+/**
+ * Calculates the average temperature - and gives warnings - of a 
+ * particular sensor present in a dplist.
+ * \param list The list which contains all relevant data
+ * \param id The id of the sensor for which to calculate the average
+ */
 void calculate_average_sensor(dplist_t *list, sensor_id_t id);
 
 /**

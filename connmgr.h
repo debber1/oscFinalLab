@@ -21,10 +21,15 @@ typedef struct {
 
 /*
  * This function inits the connection manager
- * \param: MAX_CONN this represents the maximum amount of connections allowed
- * \param: PORT this is the port on which the connmgr should listen for incomming connections
- * \return: status code which gives information about the execution state
+ * \param: param This is a pointer to a connmgr_param_t struct
+ * \return: void pointer
  */
 void *connmgr_init(void *param);
+
+/**
+ * Handles a single client on a different thread
+ * \param: param This is a pointer to a client_handler_param_t struct
+ * \return: void pointer
+ */
 void *handle_client(void *param);
 #endif /* _CONNNMGR_H_ */

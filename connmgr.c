@@ -89,7 +89,6 @@ void *handle_client(void *param){
     result = tcp_receive(client, (void *) &data.ts, &bytes);
     if ((result == TCP_NO_ERROR) && bytes) {
       sbuffer_insert(shared_buffer, &data);
-      printf("sensor id = %" PRIu16 " - temperature = %g - timestamp = %ld\n", data.id, data.value,(long int) data.ts);
     }
   } while (result == TCP_NO_ERROR);
   tcp_close(&client);

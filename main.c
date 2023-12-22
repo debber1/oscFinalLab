@@ -53,12 +53,18 @@ int main(int argc, char *argv[])
   int clients_nr = atoi(argv[2]);
 
   // Basic input validation
-  if (tcp_port <= 1024) {
+  if (tcp_port < 1024) {
     printf("Use a valid TCP port in the non-root range\nUsage:\n\tCLI arg 1: TCP port\n\tCLI arg 2: Max number of clients\n\tExample: './sensor_gateway 5678 3'\n");
     exit(-1);
   }
   if (clients_nr <= 0) {
     printf("Provide a valid amount of client connections\nUsage:\n\tCLI arg 1: TCP port\n\tCLI arg 2: Max number of clients\n\tExample: './sensor_gateway 5678 3'\n");
+    exit(-1);
+  }
+
+  // Check if room_sensor.map exists
+  if (!log_file_exists("room_sensor.map")) {
+    printf("room_sensor.map does not exist. Please add it.\n");
     exit(-1);
   }
 
